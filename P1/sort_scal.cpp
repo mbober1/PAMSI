@@ -4,7 +4,7 @@ void scal(T A[], int len, int left, int mid, int right) {
     int i = left;
     int j = mid + 1;
     int k = left;
-    T B[len];
+    T B[len]; //pomocnicza
 
     while (i <= mid && j<= right) //przejdź przez wszystkie elementy
     {

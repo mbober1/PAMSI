@@ -6,6 +6,8 @@
 #include <random>
 #include "timer.cpp"
 #include "sort_scal.cpp"
+#include "quick_sort.cpp"
+#include "to_excel.cpp"
 
 using namespace std;
 mt19937 generator{random_device{}()};
@@ -41,12 +43,42 @@ double test_algorithm(int len, float percentage=0, int order=ASCENDING){
     return time;
 }
 
+double test_algorithm_quick(int len, float percentage=0, int order=ASCENDING){
+    double time = 0;
+    for(int j=0; j<100; j++){
+        int* A;
+        A = pick_array(A, len);
+        quicksort<int>(A, 0, floor(len*percentage));
+
+        Timer t;
+        quicksort<int>(A, 0, len-1);
+        time += t.elapsed();
+    }
+    return time;
+}
+
+
 
 
 int main() {
-    int test_table[5] = {10000, 50000, 100000, 1, 0};
+    // int* A;
+    // int len = 10000;
+    // A = pick_array(A, len);
+    // quicksort<int>(A, 0, len-1);
+
+    // for(int j = 0; j<len; j++){
+    //     cout << A[j] << " ";
+    // }
 
 
+
+
+    int test_table[5] = {10000, 50000, 100000, 500000, 1000000};
+    ToFile file("excel.txt");
+    
+
+    cout << "Sortowanie przez scalanie" << endl;
+    file.write("Sortowanie przez scalanie");
     for(int i=0; i<5; i++){
         cout << "Rozmiar: " << test_table[i] << " czas: " ;
         cout << test_algorithm(test_table[i]) << "ms" << endl; 
@@ -60,6 +92,23 @@ int main() {
             cout << test_algorithm(test_table[i]) << "ms  Procent posortowania: " << percentage_array[j]*100 << endl;
         }
     }
+
+    cout << "Sortowanie szybkie" << endl;
+    for(int i=0; i<5; i++){
+        cout << "Rozmiar: " << test_table[i] << " czas: " ;
+        cout << test_algorithm_quick(test_table[i]) << "ms" << endl; 
+    }
+
+
+    for(int i=0; i<5; i++){
+        float percentage_array[] = {0.25, 0.5, 0.75, 0.95, 0.99, 0.997};
+        for(int j = 0; j<6; j++){
+            cout << "Rozmiar: " << test_table[i] << " czas: ";
+            cout << test_algorithm_quick(test_table[i]) << "ms  Procent posortowania: " << percentage_array[j]*100 << endl;
+        }
+    }
+
+
     
     return 0;
 }
