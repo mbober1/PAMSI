@@ -19,7 +19,7 @@ class ToFile : public std::ofstream {
         }
 
         void write(std::string data) {
-            file << data;
+            file << data << std::endl;
         }
 
         // friend std::ostream& operator<<(std::ostream& os, const std::string& data){
