@@ -50,3 +50,5 @@
 # End of https://www.gitignore.io/api/c++,visualstudiocode
 
 .json
+
+excel.txt

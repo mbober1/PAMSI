@@ -9,6 +9,7 @@
 #include "to_excel.cpp"
 #include <unistd.h>
 #include "heap_sort.cpp"
+#include "introspective_sort.cpp"
 
 using namespace std;
 mt19937 generator{random_device{}()};
@@ -22,6 +23,19 @@ T random(T min, T max) {
 #define DESCENDING 1
 
 
+
+template <typename T>
+bool check(T A[], int len) {
+    for(int i=0; i<len-1; i++){
+        if(A[i+1]<A[i]) {
+            return false; //błąd sortowania
+        }
+
+    }
+    return true;
+}
+
+
 int* pick_array(int* A, int len, int min=0, int max=1000) {
     A = new int[len];
     for (int i = 0; i<len; i++){
@@ -30,106 +44,85 @@ int* pick_array(int* A, int len, int min=0, int max=1000) {
     return A;
 }
 
-double test_algorithm(int len, float percentage=0, int order=ASCENDING){
+
+double test(int len, int sort_type, float percentage){
     double time = 0;
+    cout << "[";
     for(int j=0; j<100; j++){
         int* A;
         A = pick_array(A, len);
-        sort_scal<int>(A, len, 0, floor(len*percentage));
-
+        switch(sort_type) {
+            case 0: sort_scal<int>(A, len, 0, floor(len*percentage)); break;
+            case 1: quicksort<int>(A, 0, floor(len*percentage)); break;
+            case 2: introspective_sort<int>(A, 0, floor(len*percentage), 2*log2(len)); break;
+        }
         Timer t;
-        sort_scal<int>(A, len, 0, len-1);
+        switch(sort_type) {
+            case 0: sort_scal<int>(A, len, 0, len-1); break;
+            case 1: quicksort<int>(A, 0, len-1); break;
+            case 2: introspective_sort<int>(A, 0, len-1, 2*log2(len)); break;
+        }
         time += t.elapsed();
+        
+        if(!check(A, len)) cout << "x";
+        else if (j%2) cout << "|";
+        
+        cout.flush();
+        delete[] A;
     }
+    cout << "]" << endl;
     return time;
 }
 
-double test_algorithm_quick(int len, float percentage=0, int order=ASCENDING){
-    
-    double results = 0;
-    for(int j=0; j<100; j++){
-        int* A;
-        A = pick_array(A, len);
-        quicksort<int>(A, 0, floor(len*percentage));
 
-        Timer t;
-        quicksort<int>(A, 0, len-1);
-        results += t.elapsed();
-    }
-    return results;
-}
 
 
 int main() {
-    // int* A;
-    // int len = 10;
-    // // A = pick_array(A, len);
-    // int A[10] = {3,1,5,8,10,12,4,7,2};
-    // // quicksort<int>(A, 0, len-1);
-
-    // // for(int j = 0; j<len; j++){
-    // //     cout << A[j] << " ";
-    // // }
-
-
-
-
     int test_table[5] = {10000, 50000, 100000, 500000, 1000000};
     ToFile file("excel.txt");
-
-    // Heap <int>krecik(A, len);
-    // heap_sort(krecik);
-
-    // for(int j = 0; j<len; j++){
-    //     cout << A[j] << " ";
-    // }
-    
-
-    // cout << "Sortowanie przez scalanie" << endl;
-    // file.write("Sortowanie przez scalanie");
-    // for(int i=0; i<5; i++){
-    //     double results = test_algorithm(test_table[i]);
-    //     cout << "Rozmiar: " << test_table[i] << " czas: " ;
-    //     cout << results << "ms" << endl; 
-    //     file.write("rozmiar czas posortowanie");
-    //     string res_str= to_string(test_table[i]) + " " + to_string(results) + " " + '0';
-    //     file.write(res_str);
-    // }
+    file.write("rozmiar czas posortowanie");
 
 
-    // for(int i=0; i<5; i++){
-    //     float percentage_array[] = {0.25, 0.5, 0.75, 0.95, 0.99, 0.997};
-    //     for(int j = 0; j<6; j++){
-    //         double results = test_algorithm(test_table[i]);
-    //         cout << "Rozmiar: " << test_table[i] << " czas: " ;
-    //         cout << results << "ms  Procent posortowania: " << percentage_array[j]*100 << endl; 
-    //         string res_str= to_string(test_table[i]) + " " + to_string(results) + " " + to_string(percentage_array[j]);
-    //         file.write(res_str);
-    //     }
-    // }
+    cout << "Sortowanie przez scalanie" << endl;
+    file.write("Scalsort");
+    for(int i=0; i<5; i++){
+        float percentage_array[] = {0};
+        for(int j = 0; j<(sizeof(percentage_array)/sizeof(int)); j++){
+            double results = test(test_table[i], 0, percentage_array[j]);
+            cout << "Rozmiar: " << test_table[i] << " czas: " ;
+            cout << results << "ms  Procent posortowania: " << percentage_array[j]*100 << endl; 
+            string res_str= to_string(test_table[i]) + " " + to_string((int)(results)) + " " + to_string((int)(100*percentage_array[j]));
+            file.write(res_str);
+        }
+    }
 
     cout << "Sortowanie szybkie" << endl;
     file.write("QuickSort");
     for(int i=0; i<5; i++){
-        double results = test_algorithm_quick(test_table[i]);
-        cout << "Rozmiar: " << test_table[i] << " czas: " ;
-        cout << results << "ms" << endl; 
-        file.write("rozmiar czas posortowanie");
-        string res_str= to_string(test_table[i]) + " " + to_string(results) + " " + '0';
-        file.write(res_str);
+        float percentage_array[] = {0};
+        for(int j = 0; j<(sizeof(percentage_array)/sizeof(int)); j++){
+            double results = test(test_table[i], 1, percentage_array[j]);
+            cout << "Rozmiar: " << test_table[i] << " czas: " ;
+            cout << results << "ms  Procent posortowania: " << percentage_array[j]*100 << endl; 
+            string res_str= to_string(test_table[i]) + " " + to_string((int)(results)) + " " + to_string((int)(100*percentage_array[j]));
+            file.write(res_str);
+        }
     }
 
-    // for(int i=0; i<5; i++){
-    //     float percentage_array[] = {0.25, 0.5, 0.75, 0.95, 0.99, 0.997};
-    //     for(int j = 0; j<6; j++){
-    //         double results = test_algorithm_quick(test_table[i]);
-    //         cout << "Rozmiar: " << test_table[i] << " czas: " ;
-    //         cout << results << "ms  Procent posortowania: " << percentage_array[j]*100 << endl; 
-    //         string res_str= to_string(test_table[i]) + " " + to_string(results) + " " + to_string(percentage_array[j]);
-    //         file.write(res_str);
-    //     }
-    // }    
+    cout << "Sortowanie introspektywne" << endl;
+    file.write("Introspective");
+    for(int i=0; i<5; i++){
+        float percentage_array[] = {0};
+        // float percentage_array[] = {0, 0.25, 0.5, 0.75, 0.95, 0.99, 0.997};
+        for(int j = 0; j<(sizeof(percentage_array)/sizeof(int)); j++){
+            double results = test(test_table[i], 2, percentage_array[j]);
+            cout << "Rozmiar: " << test_table[i] << " czas: " ;
+            cout << results << "ms  Procent posortowania: " << percentage_array[j]*100 << endl; 
+            string res_str= to_string(test_table[i]) + " " + to_string((int)(results)) + " " + to_string((int)(100*percentage_array[j]));
+            file.write(res_str);
+        }
+    }
+
 
     return 0;
 }
-

@@ -8,14 +8,14 @@ class Heap {
         int size;
         H* heap;
 
-        Heap(H* A, int len) {
+        Heap(H* A, int size) {
             this->heap = A;
-            this->size = len;
+            this->size = size;
         }
 
         void heap_restore(int i){
-            int l = this->left(i);
-            int r = this->right(i);
+            int l = this->left_child(i);
+            int r = this->right_child(i);
             int max, temp;
 
 
@@ -32,25 +32,26 @@ class Heap {
             }
         }
 
-        int left(int i) { //zwraca index lewego bombelka
+        int left_child(int i) { //zwraca index lewego bombelka
             return 2*i+1;
         }
 
-        int right(int i) { //zwraca index prawego bombelka
+        int right_child(int i) { //zwraca index prawego bombelka
             return 2*i+2;
         }
 
-        void heap_build(int lenght) {
-            this->heap_size = lenght;
-            for(int i=lenght/2; i>=0; i--){
+        void heap_build() {
+            this->heap_size = this->size;
+            for(int i=this->size/2; i>=0; i--){
                 heap_restore(i);
             }
         }
 };
 
 template <typename T>
-void heap_sort(Heap<T> &heap, int left, int right) {
-    heap.heap_build(heap.size);    
+void heap_sort(T A[], int left, int right) {
+    Heap<T> heap(A+left, right-left+1);
+    heap.heap_build();    
 
     for(int i = heap.size-1; i > 0; i--) {
         swap(heap.heap, i, 0);
