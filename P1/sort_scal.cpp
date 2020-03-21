@@ -1,5 +1,5 @@
 template <typename T>
-void scal(T A[], int len, int left, int mid, int right) {
+void scal(T A[], int len, int left, int mid, int right, bool order) {
 
     int i = left;
     int j = mid + 1;
@@ -8,15 +8,28 @@ void scal(T A[], int len, int left, int mid, int right) {
 
     while (i <= mid && j<= right) //przejdź przez wszystkie elementy
     {
-        if (A[i] < A[j]) //porównywanie
-        {
-            B[k] = A[i];
-            i++;
-        }
-        else
-        {
-            B[k] = A[j];
-            j++;
+        if(order) {
+            if (A[i] > A[j]) //porównywanie
+            {
+                B[k] = A[i];
+                i++;
+            }
+            else
+            {
+                B[k] = A[j];
+                j++;
+            }
+        } else {
+            if (A[i] < A[j]) //porównywanie
+            {
+                B[k] = A[i];
+                i++;
+            }
+            else
+            {
+                B[k] = A[j];
+                j++;
+            }
         }
         k++;
     }
@@ -43,13 +56,13 @@ void scal(T A[], int len, int left, int mid, int right) {
 }
 
 template <typename T>
-void sort_scal(T A[], int len, int left, int right) {
+void sort_scal(T A[], int len, int left, int right, bool order) {
     if (left < right)
     {
         int mid = floor((left+right)/2);    //liczenie środka
-        sort_scal<T>(A, len, left, mid);       //sortujemy lewą część
-        sort_scal<T>(A, len, mid+1, right);    //sortujemy prawą część
-        scal<T>(A, len, left, mid, right);     //scalamy obie części
+        sort_scal<T>(A, len, left, mid, order);       //sortujemy lewą część
+        sort_scal<T>(A, len, mid+1, right, order);    //sortujemy prawą część
+        scal<T>(A, len, left, mid, right, order);     //scalamy obie części
     }
     
 }
