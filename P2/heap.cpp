@@ -23,7 +23,6 @@ class Heap {
             int last = this->heap_size-1;
             swap(this->heap, last, 0);
             this->heap_size--;
-            this->heap_restore(0, order);
             return this->heap[last];
         }
         
@@ -60,11 +59,11 @@ class Heap {
             }
         }
 
-        int left_child(int i) { //zwraca index lewego bombelka
+        int left_child(int i) {
             return 2*i+1;
         }
 
-        int right_child(int i) { //zwraca index prawego bombelka
+        int right_child(int i) {
             return 2*i+2;
         }
 
