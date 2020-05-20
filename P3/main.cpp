@@ -109,7 +109,7 @@ class Board {
         printf("┘\n");
     }
 
-    int getWinner2() const {
+    int getWinner() const {
         int x = this->pointsToWin;
         if(this->turns_count == this->cols*this->cols) {
             return DRAW;
@@ -210,45 +210,6 @@ class Board {
         return 0;
     }
 
-    // int getWinner() const {
-    //     for(int i = 0; i < this->cols; ++i) {
-    //         if(this->c[i] >= this->cols) {
-    //             return AI;
-    //         }
-    //         if(this->r[i] >= this->rows) {
-    //             return AI;
-    //         }
-
-    //         if(this->c[i] <= -this->rows) {
-    //             return PLAYER;
-    //         }
-    //         if(this->r[i] <= -this->rows) {
-    //             return PLAYER;
-    //         }
-    //     }
-        
-    //     if(this->d >= this->cols) {
-    //         return AI;
-    //     }
-        
-    //     if(this->d <= -this->cols) {
-    //         return PLAYER;
-    //     }
-        
-    //     if(this->ad >= this->cols) {
-    //         return AI;
-    //     }
-
-    //     if(this->ad <= -this->cols) {
-    //         return PLAYER;
-    //     }
-        
-    //     if(this->turns_count == this->cols*this->cols) {
-    //         return DRAW;
-    //     }
-
-    //     return 0;
-    // }
 
     bool do_turn(int col, int row, int state) {
         if(col < 0 || col >= this->cols) {
@@ -265,8 +226,6 @@ class Board {
             return false;
         }
         
-
-        // this->matrix[col][row] = state == AI ? 'X' : 'O';
         this->matrix[col][row] = state;
         int score = state == AI ? 1 : -1;
         this->r[row] += score;
@@ -288,14 +247,15 @@ class Board {
 };
 
 int minmax(const Board &board, int player, int depth = 0) {
-    switch (board.getWinner2()) {
+    switch (board.getWinner()) {
         case AI: return 1;
         case PLAYER: return -1;
         case DRAW: return 0;
     }
-
-    if (board.rows < 10 && depth == 10) return 0;
-    else if (depth == 5) return 0;
+    
+    if (board.rows < 10) {
+        if (depth == 5) return 0;
+    } else if (depth == 3) return 0;
     
 
     int score = player == AI ? INT_MIN : INT_MAX;
@@ -363,7 +323,7 @@ int main() {
     int gameSize, pointsToWin;
     std::cout << "Podaj wielkość planszy: ";
     std::cin >> gameSize;
-    std::cout << "\nPodaj ilość znaków w rzędzie: ";
+    std::cout << "Podaj ilość znaków w rzędzie: ";
     std::cin >> pointsToWin;
     Board board(gameSize, pointsToWin);
     int state = PLAYER;
@@ -387,13 +347,13 @@ int main() {
         } while(!good);
         
         state = state == AI ? PLAYER : AI;
-        if(board.getWinner2() != 0) state = END_GAME;
+        if(board.getWinner() != 0) state = END_GAME;
         printf("\n");
     }
 
     board.draw();
 
-    switch (board.getWinner2()) {
+    switch (board.getWinner()) {
         case AI: printf("\nPrzykro mi, przegrałeś.\n"); break;
         case PLAYER: printf("\nGratulacje wygrałeś!\n"); break;
         case DRAW: printf("\nRemis!\n"); break;
